@@ -51,8 +51,21 @@ document.addEventListener('keydown', (e) => {
 async function searchMovies() {
     const searchTerm = searchInput.value.trim();
     
+    // Validação do campo de busca
     if (!searchTerm) {
         showError('Por favor, digite o nome de um filme.');
+        return;
+    }
+
+    // Validação de tamanho mínimo
+    if (searchTerm.length < 2) {
+        showError('Digite pelo menos 2 caracteres para buscar.');
+        return;
+    }
+
+    // Validação da API Key
+    if (!API_KEY) {
+        showError('API Key não configurada. Verifique o arquivo .env');
         return;
     }
 
