@@ -4,9 +4,47 @@
     box-sizing: border-box;
 }
 
+:root {
+    /* Cores principais */
+    --primary-gradient-start: #667eea;
+    --primary-gradient-end: #764ba2;
+    --accent-color: #ff6b6b;
+    --accent-hover: #ee5a52;
+    --gold-gradient-start: #ffd700;
+    --gold-gradient-end: #ffed4e;
+    
+    /* Cores de texto */
+    --text-dark: #333;
+    --text-medium: #666;
+    --text-light: #555;
+    --text-white: white;
+    
+    /* Backgrounds */
+    --bg-light: #f8f9fa;
+    --bg-white: white;
+    --bg-card: white;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.3);
+    
+    /* Transições */
+    --transition-fast: 0.3s ease;
+    --transition-medium: 0.4s ease;
+    
+    /* Raios de borda */
+    --radius-sm: 10px;
+    --radius-md: 15px;
+    --radius-lg: 20px;
+    --radius-xl: 25px;
+    --radius-full: 50%;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
     min-height: 100vh;
     padding: 20px;
 }
@@ -18,7 +56,7 @@ body {
 
 header {
     text-align: center;
-    color: white;
+    color: var(--text-white);
     margin-bottom: 40px;
 }
 
@@ -47,26 +85,26 @@ header p {
     padding: 15px 20px;
     font-size: 1rem;
     border: none;
-    border-radius: 25px;
+    border-radius: var(--radius-xl);
     outline: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
 }
 
 #searchBtn {
     padding: 15px 30px;
     font-size: 1rem;
     font-weight: bold;
-    background-color: #ff6b6b;
-    color: white;
+    background-color: var(--accent-color);
+    color: var(--text-white);
     border: none;
-    border-radius: 25px;
+    border-radius: var(--radius-xl);
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-md);
 }
 
 #searchBtn:hover {
-    background-color: #ee5a52;
+    background-color: var(--accent-hover);
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
