@@ -1,7 +1,7 @@
 // Configuração da API do OMDB
 // A API Key é carregada do arquivo .env
 let API_KEY = '';
-const API_URL = 'https://www.omdbapi.com/';
+const API_URL = '';
 
 // Carregar API Key do arquivo .env
 async function initializeApp() {
@@ -95,10 +95,20 @@ async function searchMovies() {
 function displayMovies(movies) {
     resultsDiv.innerHTML = '';
 
+    // Verifica se há resultados
+    if (!movies || movies.length === 0) {
+        showError('Nenhum filme encontrado. Tente outra busca.');
+        return;
+    }
+
+    // Adiciona cada filme à grade
     movies.forEach(movie => {
         const movieCard = createMovieCard(movie);
         resultsDiv.appendChild(movieCard);
     });
+
+    // Rola suavemente até os resultados
+    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // Função para criar um card de filme
@@ -279,6 +289,7 @@ function generateStars(rating) {
 function closeModal() {
     movieModal.classList.add('hidden');
     document.body.style.overflow = ''; // Restaurar scroll do body
+    modalBody.innerHTML = ''; // Limpar conteúdo do modal
 }
 
 // Funções auxiliares
@@ -293,6 +304,8 @@ function hideLoading() {
 function showError(message) {
     errorDiv.textContent = message;
     errorDiv.classList.remove('hidden');
+    
+    // Auto-ocultar após 5 segundos
     setTimeout(() => {
         errorDiv.classList.add('hidden');
     }, 5000);
