@@ -22,8 +22,9 @@
                 id="searchInput" 
                 placeholder="Digite o nome do filme..."
                 autocomplete="off"
+                aria-label="Campo de busca de filmes"
             >
-            <button id="searchBtn">Buscar</button>
+            <button id="searchBtn" aria-label="Buscar filmes">Buscar</button>
         </div>
 
         <div id="loading" class="loading hidden">
@@ -31,9 +32,9 @@
             <p>Buscando filmes...</p>
         </div>
 
-        <div id="error" class="error hidden"></div>
+        <div id="error" class="error hidden" role="alert"></div>
 
-        <div id="results" class="results"></div>
+        <div id="results" class="results" role="region" aria-label="Resultados da busca"></div>
     </div>
 
     <!-- Modal de Detalhes do Filme -->
