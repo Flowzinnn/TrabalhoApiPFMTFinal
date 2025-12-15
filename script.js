@@ -1,3 +1,23 @@
+/**
+ * Buscador de Filmes - OMDB API
+ * 
+ * Este projeto utiliza conceitos modernos de JavaScript, incluindo:
+ * 
+ * STREAMS API:
+ * - ReadableStream: Para ler dados de forma assíncrona e eficiente
+ * - WritableStream: Para processar dados em chunks
+ * - TransformStream: Para transformar dados enquanto fluem
+ * 
+ * Benefícios dos Streams:
+ * - Processamento de dados em tempo real sem esperar o download completo
+ * - Melhor gerenciamento de memória para grandes volumes de dados
+ * - Possibilidade de cancelar operações em andamento
+ * - Interface fluida e reativa para o usuário
+ * 
+ * @author IFMS/TEIXEIRA
+ * @version 2.0
+ */
+
 // Configuração da API do OMDB
 // A API Key é carregada do arquivo .env
 let API_KEY = '';
@@ -47,7 +67,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Função principal para buscar filmes
+// Função principal para buscar filmes (usando Streams)
 async function searchMovies() {
     const searchTerm = searchInput.value.trim();
     
@@ -74,13 +94,37 @@ async function searchMovies() {
     showLoading();
 
     try {
+        // Fazendo requisição com suporte a streaming
         const response = await fetch(`${API_URL}?apikey=${API_KEY}&s=${encodeURIComponent(searchTerm)}`);
-        const data = await response.json();
+        
+        // Verificar se a resposta tem body com stream
+        if (!response.body) {
+            throw new Error('ReadableStream não suportado neste navegador');
+        }
 
+        // Processar resposta usando Stream API
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let receivedData = '';
+
+        // Ler dados do stream progressivamente
+        while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) break;
+            
+            // Decodificar chunk recebido
+            receivedData += decoder.decode(value, { stream: true });
+        }
+
+        // Parsear JSON completo
+        const data = JSON.parse(receivedData);
+        
         hideLoading();
 
         if (data.Response === 'True') {
-            displayMovies(data.Search);
+            // Usar stream para processar filmes de forma assíncrona
+            await displayMoviesWithStream(data.Search);
         } else {
             showError(data.Error || 'Nenhum filme encontrado. Tente outra busca.');
         }
@@ -91,8 +135,8 @@ async function searchMovies() {
     }
 }
 
-// Função para exibir os filmes
-function displayMovies(movies) {
+// Função para exibir os filmes usando Stream API
+async function displayMoviesWithStream(movies) {
     resultsDiv.innerHTML = '';
 
     // Verifica se há resultados
@@ -101,11 +145,29 @@ function displayMovies(movies) {
         return;
     }
 
-    // Adiciona cada filme à grade
-    movies.forEach(movie => {
-        const movieCard = createMovieCard(movie);
-        resultsDiv.appendChild(movieCard);
+    // Criar um ReadableStream customizado para processar filmes
+    const movieStream = new ReadableStream({
+        start(controller) {
+            movies.forEach(movie => controller.enqueue(movie));
+            controller.close();
+        }
     });
+
+    // Processar stream de filmes
+    const reader = movieStream.getReader();
+    
+    while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        // Criar e adicionar card com pequeno delay para efeito visual
+        const movieCard = createMovieCard(value);
+        resultsDiv.appendChild(movieCard);
+        
+        // Pequeno delay para animação suave (opcional)
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
 
     // Rola suavemente até os resultados
     resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -133,12 +195,39 @@ function createMovieCard(movie) {
     return card;
 }
 
-// Função para mostrar detalhes do filme
+// Função para mostrar detalhes do filme (com Stream)
 async function showMovieDetails(imdbID) {
     try {
         showLoading();
+        
+        // Usar fetch com streaming
         const response = await fetch(`${API_URL}?apikey=${API_KEY}&i=${imdbID}&plot=full`);
-        const movie = await response.json();
+        
+        if (!response.body) {
+            // Fallback para navegadores sem suporte a streams
+            const movie = await response.json();
+            hideLoading();
+            if (movie.Response === 'True') {
+                openModal(movie);
+            } else {
+                showError('Erro ao carregar detalhes do filme.');
+            }
+            return;
+        }
+
+        // Processar resposta usando Stream
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let receivedData = '';
+
+        // Ler stream de dados
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            receivedData += decoder.decode(value, { stream: true });
+        }
+
+        const movie = JSON.parse(receivedData);
         hideLoading();
 
         if (movie.Response === 'True') {
@@ -150,6 +239,35 @@ async function showMovieDetails(imdbID) {
         hideLoading();
         showError('Erro ao buscar detalhes do filme.');
         console.error('Erro:', error);
+    }
+}
+
+/**
+ * TransformStream customizado para processar dados de filmes
+ * Adiciona metadados e validações aos dados recebidos
+ */
+class MovieDataTransformer {
+    constructor() {
+        this.transformStream = new TransformStream({
+            transform(chunk, controller) {
+                try {
+                    // Validar e enriquecer dados do filme
+                    const enrichedMovie = {
+                        ...chunk,
+                        processedAt: new Date().toISOString(),
+                        hasValidPoster: chunk.Poster && chunk.Poster !== 'N/A',
+                        searchRelevance: Math.random() // Exemplo de score
+                    };
+                    controller.enqueue(enrichedMovie);
+                } catch (error) {
+                    console.error('Erro ao processar filme:', error);
+                }
+            }
+        });
+    }
+
+    getStream() {
+        return this.transformStream;
     }
 }
 
