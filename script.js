@@ -1,7 +1,7 @@
 // Configuração da API do OMDB
 // A API Key é carregada do arquivo .env
 let API_KEY = '';
-const API_URL = '';
+const API_URL = 'https://www.omdbapi.com/';
 
 // Carregar API Key do arquivo .env
 async function initializeApp() {
