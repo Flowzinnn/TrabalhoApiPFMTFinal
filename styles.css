@@ -237,6 +237,33 @@ header p {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-size: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.no-poster::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
 }
 
 @media (max-width: 768px) {
